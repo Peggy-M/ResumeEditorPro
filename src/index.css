@@ -275,3 +275,8 @@
     padding: 28px 24px 56px;
   }
 }
+
+/* Ensure driver.js popover is above everything */
+.driver-popover {
+  z-index: 100000 !important;
+}

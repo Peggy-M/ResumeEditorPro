@@ -1,8 +1,11 @@
-import {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import {driver} from 'driver.js';
+import 'driver.js/dist/driver.css';
 import {
   Briefcase,
+  Cpu,
   Download,
   Edit3,
   Eye,
@@ -13,7 +16,28 @@ import {
   Settings2,
   User,
   Wrench,
+  GraduationCap,
+  Award,
+  Book,
+  Code,
+  Globe,
+  Heart,
+  Star,
+  Target,
+  Zap,
+  Lightbulb,
+  Compass,
+  Smartphone,
+  AtSign,
+  Send,
+  Link,
+  Github,
+  Linkedin
 } from 'lucide-react';
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  Briefcase, Cpu, FileText, Layers, User, Wrench, GraduationCap, Award, Book, Code, Globe, Heart, Star, Target, Zap, Lightbulb, Compass, Phone, Mail, Smartphone, AtSign, Send, Link, Github, Linkedin
+};
 import MilkdownEditor from './components/MilkdownEditor';
 import {cn} from './lib/utils';
 import DEFAULT_MARKDOWN from './constants/template.md?raw';
@@ -87,32 +111,57 @@ function splitTitleAndDate(content: string) {
   };
 }
 
-function sectionIcon(text: string) {
+function getDefaultIconName(text: string) {
   const normalized = text.toLowerCase();
 
   if (
     normalized.includes('experience') ||
     normalized.includes('work') ||
     normalized.includes('工作') ||
-    normalized.includes('经历')
+    (normalized.includes('经历') && !normalized.includes('项目'))
   ) {
-    return Briefcase;
+    return 'Briefcase';
   }
 
   if (normalized.includes('project') || normalized.includes('项目')) {
-    return Layers;
+    return 'Layers';
+  }
+
+  if (
+    normalized.includes('education') ||
+    normalized.includes('教育')
+  ) {
+    return 'GraduationCap';
   }
 
   if (
     normalized.includes('summary') ||
     normalized.includes('profile') ||
     normalized.includes('评价') ||
-    normalized.includes('总结')
+    normalized.includes('总结') ||
+    normalized.includes('评估')
   ) {
-    return User;
+    return 'Compass';
   }
 
-  return Wrench;
+  if (
+    normalized.includes('skill') ||
+    normalized.includes('技术') ||
+    normalized.includes('技能')
+  ) {
+    return 'Cpu';
+  }
+
+  if (
+    normalized.includes('award') ||
+    normalized.includes('荣誉') ||
+    normalized.includes('获奖') ||
+    normalized.includes('证书')
+  ) {
+    return 'Award';
+  }
+
+  return 'Wrench';
 }
 
 function normalizeHref(href?: string) {
@@ -137,10 +186,72 @@ export default function App() {
   const [selectedFont, setSelectedFont] = useState(FONT_OPTIONS[0].value);
   const [showSettings, setShowSettings] = useState(false);
   const [layoutConfig, setLayoutConfig] = useState(DEFAULT_LAYOUT);
+  // Initial custom icon map to handle the dynamic generation logic correctly.
+  const [customIcons, setCustomIcons] = useState<Record<string, string>>(() => {
+    try {
+      const stored = localStorage.getItem('resume-custom-icons');
+      return stored ? JSON.parse(stored) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+  const [iconPickerTarget, setIconPickerTarget] = useState<string | null>(null);
 
   const updateLayout = (key: keyof LayoutConfig, value: number) => {
     setLayoutConfig((previous) => ({...previous, [key]: value}));
   };
+
+  // Add onboarding logic using driver.js
+  React.useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('hasSeenResumeOnboarding');
+    if (!hasSeenOnboarding) {
+      const driverObj = driver({
+        showProgress: true,
+        animate: true,
+        nextBtnText: '下一步',
+        prevBtnText: '上一步',
+        doneBtnText: '完成',
+        steps: [
+          {
+            element: '.action-buttons',
+            popover: {
+              title: '控制面板',
+              description: '这里可以调整字体、间距、下载Markdown或直接打印PDF。',
+              side: 'bottom',
+              align: 'start'
+            }
+          },
+          {
+            element: '.custom-icon-trigger',
+            popover: {
+              title: '自定义图标',
+              description: '点击这个小图标可以自由切换你喜欢的样式！电话和邮箱的图标也同样支持点击切换哦。',
+              side: 'right',
+              align: 'center'
+            }
+          },
+          {
+            element: '.editor-tabs',
+            popover: {
+              title: '编辑模式',
+              description: '你可以选择源码模式或Milkdown模式（更接近所见即所得）来编辑你的简历内容。',
+              side: 'bottom',
+              align: 'start'
+            }
+          }
+        ],
+        onDestroyStarted: () => {
+          localStorage.setItem('hasSeenResumeOnboarding', 'true');
+          driverObj.destroy();
+        }
+      });
+      
+      // small delay to ensure DOM is fully rendered
+      setTimeout(() => {
+        driverObj.drive();
+      }, 500);
+    }
+  }, []);
 
   const handlePrint = () => {
     window.print();
@@ -166,15 +277,23 @@ export default function App() {
     ),
     h2: ({children}: {children: React.ReactNode}) => {
       const text = extractText(children);
-      const Icon = sectionIcon(text);
+      const rawText = text.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s()/&+\-]/g, '').trim();
+      const currentIconName = customIcons[rawText] || getDefaultIconName(text);
+      const Icon = ICON_MAP[currentIconName] || Wrench;
 
       return (
         <h2
           style={{fontSize: `${layoutConfig.h2Size}px`}}
-          className="mt-5 mb-3 flex items-center gap-1.5 border-b border-black pb-0.5 font-bold"
+          className="mt-5 mb-3 flex items-center gap-2 border-b border-black pb-1.5 font-bold relative group"
         >
-          <Icon size={layoutConfig.h2Size} strokeWidth={2.5} className="text-black" />
-          {text.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s()/&+\-]/g, '').trim()}
+          <div
+            className="custom-icon-trigger flex cursor-pointer items-center justify-center rounded-full bg-zinc-100 p-1.5 transition-colors hover:bg-zinc-200"
+            onClick={() => setIconPickerTarget(rawText)}
+            title="点击切换图标"
+          >
+            <Icon size={layoutConfig.h2Size - 2} strokeWidth={2.5} className="text-black" />
+          </div>
+          {rawText}
         </h2>
       );
     },
@@ -188,7 +307,10 @@ export default function App() {
             {title}
           </span>
           {meta ? (
-            <span style={{fontSize: `${layoutConfig.h3Size - 1.5}px`}} className="shrink-0 font-bold text-black">
+            <span
+              style={{fontSize: `${layoutConfig.h3Size - 1.5}px`}}
+              className="shrink-0 rounded-full border border-zinc-200 bg-zinc-100 px-3 py-0.5 font-bold text-black"
+            >
               {meta}
             </span>
           ) : null}
@@ -241,14 +363,38 @@ export default function App() {
                   >
                     {phoneMatch ? (
                       <span className="flex items-center gap-1.5">
-                        <Phone size={layoutConfig.bodySize} strokeWidth={2.5} className="text-black" />
+                        {(() => {
+                          const currentIconName = customIcons['联系电话'] || 'Phone';
+                          const IconComp = ICON_MAP[currentIconName] || Phone;
+                          return (
+                            <span
+                              className="cursor-pointer transition-opacity hover:opacity-50"
+                              onClick={() => setIconPickerTarget('联系电话')}
+                              title="点击切换电话图标"
+                            >
+                              <IconComp size={layoutConfig.bodySize} strokeWidth={2.5} className="text-black" />
+                            </span>
+                          );
+                        })()}
                         {phoneMatch[0]}
                       </span>
                     ) : null}
                     {phoneMatch && emailMatch ? <span className="text-neutral-300">|</span> : null}
                     {emailMatch ? (
                       <span className="flex items-center gap-1.5">
-                        <Mail size={layoutConfig.bodySize} strokeWidth={2.5} className="text-black" />
+                        {(() => {
+                          const currentIconName = customIcons['电子邮箱'] || 'Mail';
+                          const IconComp = ICON_MAP[currentIconName] || Mail;
+                          return (
+                            <span
+                              className="cursor-pointer transition-opacity hover:opacity-50"
+                              onClick={() => setIconPickerTarget('电子邮箱')}
+                              title="点击切换邮箱图标"
+                            >
+                              <IconComp size={layoutConfig.bodySize} strokeWidth={2.5} className="text-black" />
+                            </span>
+                          );
+                        })()}
                         {emailMatch[0]}
                       </span>
                     ) : null}
@@ -340,7 +486,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="action-buttons flex items-center gap-3">
             <select
               value={selectedFont}
               onChange={(event) => setSelectedFont(event.target.value)}
@@ -451,7 +597,7 @@ export default function App() {
           </div>
 
           <div className="border-b border-neutral-200 bg-white px-4 py-3">
-            <div className="inline-flex rounded-lg bg-neutral-100 p-1">
+            <div className="editor-tabs inline-flex rounded-lg bg-neutral-100 p-1">
               <button
                 onClick={() => setEditorMode('source')}
                 className={cn(
@@ -549,6 +695,39 @@ export default function App() {
           </div>
         </section>
       </main>
+
+      {iconPickerTarget && (
+        <div
+          className="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4"
+          onClick={() => setIconPickerTarget(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-4 text-lg font-bold">选择图标 - {iconPickerTarget}</h3>
+            <div className="grid grid-cols-6 gap-4">
+              {Object.entries(ICON_MAP).map(([name, IconComp]) => (
+                <button
+                  key={name}
+                  className="flex flex-col items-center justify-center gap-2 rounded-lg p-3 transition-colors hover:bg-zinc-100"
+                  onClick={() => {
+                    setCustomIcons((prev) => {
+                      const next = {...prev, [iconPickerTarget]: name};
+                      localStorage.setItem('resume-custom-icons', JSON.stringify(next));
+                      return next;
+                    });
+                    setIconPickerTarget(null);
+                  }}
+                  title={name}
+                >
+                  <IconComp size={24} className="text-black" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
