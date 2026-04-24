@@ -183,7 +183,7 @@ function normalizeHref(href?: string) {
 
 export default function App() {
   const [hasStarted, setHasStarted] = useState(() => {
-    return localStorage.getItem('resume-has-started') === 'true';
+    return window.location.hash === '#editor';
   });
   const [markdown, setMarkdown] = useState(DEFAULT_MARKDOWN);
   const [editorMode, setEditorMode] = useState<EditorMode>('milkdown');
@@ -207,17 +207,10 @@ export default function App() {
 
   useEffect(() => {
     const handlePopState = () => {
-      if (window.location.hash !== '#editor') {
-        setHasStarted(false);
-      } else {
-        setHasStarted(true);
-      }
+      setHasStarted(window.location.hash === '#editor');
     };
-    
-    // Set initial hash state if we're directly starting in editor from local storage
-    if (hasStarted && window.location.hash !== '#editor') {
-      window.history.replaceState(null, '', '#editor');
-    }
+
+    handlePopState();
 
     window.addEventListener('popstate', handlePopState);
     // Also listen for hashchange to be safe
@@ -227,12 +220,22 @@ export default function App() {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('hashchange', handlePopState);
     };
-  }, [hasStarted]);
+  }, []);
 
   // Add onboarding logic using driver.js
   React.useEffect(() => {
+    if (!hasStarted || window.location.hash !== '#editor') {
+      return;
+    }
+
     const hasSeenOnboarding = localStorage.getItem('hasSeenResumeOnboarding');
     if (!hasSeenOnboarding) {
+      const requiredSelectors = ['.action-buttons', '.custom-icon-trigger', '.editor-tabs'];
+      const hasRequiredTargets = requiredSelectors.every((selector) => document.querySelector(selector));
+      if (!hasRequiredTargets) {
+        return;
+      }
+
       const driverObj = driver({
         showProgress: true,
         animate: true,
@@ -275,11 +278,16 @@ export default function App() {
       });
       
       // small delay to ensure DOM is fully rendered
-      setTimeout(() => {
+      const timer = window.setTimeout(() => {
         driverObj.drive();
-      }, 500);
+      }, 300);
+
+      return () => {
+        window.clearTimeout(timer);
+        driverObj.destroy();
+      };
     }
-  }, []);
+  }, [hasStarted]);
 
   const handlePrint = () => {
     window.print();
@@ -302,7 +310,6 @@ export default function App() {
       <LandingPage
         onStart={() => {
           setHasStarted(true);
-          localStorage.setItem('resume-has-started', 'true');
           window.location.hash = 'editor';
         }}
       />
@@ -519,6 +526,7 @@ export default function App() {
           <div 
             className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity group"
             onClick={() => {
+              setHasStarted(false);
               window.location.hash = '';
             }}
             title="返回首页"
