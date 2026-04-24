@@ -2,6 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap');
 @import url('https://npm.elemecdn.com/lxgw-wenkai-screen-webfont/style.css');
+@import "@milkdown/crepe/theme/common/style.css";
+@import "@milkdown/crepe/theme/nord.css";
 @import "tailwindcss";
 
 @theme {
@@ -14,15 +16,18 @@
     -moz-osx-font-smoothing: grayscale;
     font-family: var(--font-sans);
   }
+
   @media print {
     .no-print {
       display: none !important;
     }
+
     body {
       background-color: white !important;
       margin: 0 !important;
       padding: 0 !important;
     }
+
     .print-only {
       display: block !important;
       position: relative !important;
@@ -31,6 +36,7 @@
       margin: 0 !important;
       box-shadow: none !important;
     }
+
     * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
@@ -38,7 +44,6 @@
   }
 }
 
-/* Precise PDF Matching Styles */
 .resume-content {
   color: #1a1a1a;
   line-height: 1.6;
@@ -102,7 +107,6 @@
   color: #000;
 }
 
-/* Split row for company/dates */
 .resume-row-between {
   display: flex;
   justify-content: space-between;
@@ -112,3 +116,162 @@
   margin-bottom: 4px;
 }
 
+.milkdown-host {
+  height: 100%;
+  min-height: 420px;
+  background: #fff;
+}
+
+.milkdown-host .milkdown,
+.milkdown-host .cm-editor {
+  height: 100%;
+}
+
+.milkdown-host .milkdown {
+  border: 0;
+  min-height: 420px;
+  --crepe-font-default: var(--font-sans);
+  --crepe-font-title: var(--font-sans);
+  --crepe-color-background: #ffffff;
+  --crepe-color-on-background: #111111;
+  --crepe-color-surface: #ffffff;
+  --crepe-color-surface-low: #f7f7f7;
+  --crepe-color-on-surface: #111111;
+  --crepe-color-on-surface-variant: #5f5f5f;
+  --crepe-color-outline: #d4d4d4;
+  --crepe-color-primary: #111111;
+  --crepe-color-secondary: #f5f5f5;
+  --crepe-color-on-secondary: #111111;
+  --crepe-color-inline-code: #b42318;
+  --crepe-color-hover: #f5f5f5;
+  --crepe-color-selected: rgba(17, 17, 17, 0.08);
+  --crepe-color-inline-area: rgba(17, 17, 17, 0.06);
+  box-shadow: none;
+}
+
+.milkdown-host .ProseMirror {
+  min-height: 420px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 36px 40px 72px;
+  color: #111111;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.7;
+  caret-color: #111111;
+}
+
+.milkdown-host .ProseMirror h1,
+.milkdown-host .ProseMirror h2,
+.milkdown-host .ProseMirror h3,
+.milkdown-host .ProseMirror h4,
+.milkdown-host .ProseMirror h5,
+.milkdown-host .ProseMirror h6 {
+  font-family: var(--font-sans);
+  color: #000000;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.milkdown-host .ProseMirror h1 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding: 0;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.milkdown-host .ProseMirror h2 {
+  margin-top: 28px;
+  margin-bottom: 12px;
+  padding: 0 0 6px;
+  font-size: 20px;
+  line-height: 1.35;
+  border-bottom: 1px solid #111111;
+}
+
+.milkdown-host .ProseMirror h3 {
+  margin-top: 18px;
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.milkdown-host .ProseMirror h4 {
+  margin-top: 12px;
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+
+.milkdown-host .ProseMirror p {
+  padding: 0;
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.milkdown-host .ProseMirror strong {
+  color: #000000;
+  font-weight: 700;
+}
+
+.milkdown-host .ProseMirror a {
+  color: #1d4ed8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.milkdown-host .ProseMirror ul,
+.milkdown-host .ProseMirror ol {
+  margin: 0 0 10px;
+  padding-left: 1.15rem;
+}
+
+.milkdown-host .ProseMirror li {
+  margin: 0 0 4px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.milkdown-host .ProseMirror li p {
+  margin-bottom: 0;
+}
+
+.milkdown-host .ProseMirror blockquote {
+  margin: 8px 0;
+  padding-left: 16px;
+}
+
+.milkdown-host .ProseMirror code {
+  border-radius: 4px;
+}
+
+.milkdown-host .ProseMirror hr {
+  margin: 16px 0;
+}
+
+.milkdown-host .ProseMirror-focused {
+  outline: none;
+}
+
+.milkdown-host .ProseMirror ::selection {
+  background: rgba(17, 17, 17, 0.12);
+}
+
+.milkdown-host .milkdown .toolbar,
+.milkdown-host .milkdown .top-bar {
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 1024px) {
+  .milkdown-host .ProseMirror {
+    max-width: none;
+    padding: 28px 24px 56px;
+  }
+}

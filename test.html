@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagination Test</title>
+<style>
+  body {
+    background: #e5e5e5;
+    padding: 20px;
+    font-family: sans-serif;
+  }
+  .pages-container {
+    height: 297mm;
+    column-width: 210mm;
+    column-gap: 20px;
+    column-fill: auto;
+  }
+  .page-content {
+    /* To make each column look like a page, we can style the children, but we can't style the column boxes directly easily. */
+  }
+  /* Alternatively, style the container to have no background, and let the columns have background? No, column rules. */
+</style>
+</head>
+<body>
+  <div class="pages-container">
+    <div style="background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: 100%;">
+      <h1>Test</h1>
+      <p>Lorem ipsum...</p>
+      <!-- a lot of text -->
+      <div style="height: 500mm; background: linear-gradient(red, blue);"></div>
+    </div>
+  </div>
+</body>
+</html>
