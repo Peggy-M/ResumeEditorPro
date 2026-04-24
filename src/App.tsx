@@ -39,6 +39,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Briefcase, Cpu, FileText, Layers, User, Wrench, GraduationCap, Award, Book, Code, Globe, Heart, Star, Target, Zap, Lightbulb, Compass, Phone, Mail, Smartphone, AtSign, Send, Link, Github, Linkedin
 };
 import MilkdownEditor from './components/MilkdownEditor';
+import LandingPage from './components/LandingPage';
 import {cn} from './lib/utils';
 import DEFAULT_MARKDOWN from './constants/template.md?raw';
 
@@ -181,6 +182,9 @@ function normalizeHref(href?: string) {
 }
 
 export default function App() {
+  const [hasStarted, setHasStarted] = useState(() => {
+    return localStorage.getItem('resume-has-started') === 'true';
+  });
   const [markdown, setMarkdown] = useState(DEFAULT_MARKDOWN);
   const [editorMode, setEditorMode] = useState<EditorMode>('milkdown');
   const [selectedFont, setSelectedFont] = useState(FONT_OPTIONS[0].value);
@@ -200,6 +204,30 @@ export default function App() {
   const updateLayout = (key: keyof LayoutConfig, value: number) => {
     setLayoutConfig((previous) => ({...previous, [key]: value}));
   };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (window.location.hash !== '#editor') {
+        setHasStarted(false);
+      } else {
+        setHasStarted(true);
+      }
+    };
+    
+    // Set initial hash state if we're directly starting in editor from local storage
+    if (hasStarted && window.location.hash !== '#editor') {
+      window.history.replaceState(null, '', '#editor');
+    }
+
+    window.addEventListener('popstate', handlePopState);
+    // Also listen for hashchange to be safe
+    window.addEventListener('hashchange', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('hashchange', handlePopState);
+    };
+  }, [hasStarted]);
 
   // Add onboarding logic using driver.js
   React.useEffect(() => {
@@ -268,6 +296,18 @@ export default function App() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
+
+  if (!hasStarted) {
+    return (
+      <LandingPage
+        onStart={() => {
+          setHasStarted(true);
+          localStorage.setItem('resume-has-started', 'true');
+          window.location.hash = 'editor';
+        }}
+      />
+    );
+  }
 
   const components = {
     h1: ({children}: {children: React.ReactNode}) => (
@@ -476,8 +516,14 @@ export default function App() {
 
       <header className="no-print sticky top-0 z-50 border-b border-neutral-300 bg-white shadow-sm">
         <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-black">
+          <div 
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity group"
+            onClick={() => {
+              window.location.hash = '';
+            }}
+            title="返回首页"
+          >
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-black group-hover:bg-neutral-800 transition-colors">
               <FileText className="text-white" size={18} />
             </div>
             <div>
