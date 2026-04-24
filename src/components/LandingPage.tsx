@@ -81,7 +81,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           <span className="text-xl font-black tracking-tight">ResumeEditor<span className="text-neutral-400">Pro</span></span>
         </div>
         <a
-          href="https://github.com"
+          href="https://github.com/Peggy-M/ResumeEditorPro"
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-black transition-colors"
